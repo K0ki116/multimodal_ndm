@@ -1,5 +1,31 @@
 #subject_dataにはnumpy配列が入る。pandasで読み込んで1回valuesで変換することが期待される。
-#
+#その前に、pandasデータフレームであるうちにラベルの同一性を確認しておく
+
+def check_label_consistency(subject_data: pd.DataFrame, conn_labels: np.ndarray) -> bool:
+    """
+    Checks if the labels in subject_data (excluding the first column) are consistent with the labels in conn_labels.
+
+    Parameters:
+        subject_data (pd.DataFrame): DataFrame containing the subject data. The first column is assumed to be the subject ID.
+        conn_labels (np.ndarray): 1D numpy array containing the labels of the brain regions in the connectome.
+
+    Returns:
+        bool: True if the labels are consistent, False otherwise. Prints mismatched labels if any.
+    """
+    # Extract labels from subject_data (excluding the first column)
+    subject_labels = subject_data.columns[1:].to_numpy()
+    
+    # Compare the labels
+    if np.array_equal(subject_labels, conn_labels):
+        print("Labels are consistent.")
+        return True
+    else:
+        print("Labels are inconsistent!")
+        mismatches = [(sub_label, conn_label) for sub_label, conn_label in zip(subject_labels, conn_labels) if sub_label != conn_label]
+        print("Mismatches found:")
+        for sub_label, conn_label in mismatches:
+            print(f"Subject label: {sub_label} <-> Connectome label: {conn_label}")
+        return False
 
 def compute_likelihood(subject, x_t_norm):
     # 二乗誤差に基づく尤度の計算
@@ -33,7 +59,7 @@ def update_seed_region(subject_data, membership_probs, seed_candidates, c_type, 
     return best_seed
 
 
-def em_ndm_with(subject_data, c_type, c_path, thr, seed_candidates, ref_list, n_subgroups, tol=1e-6, max_iter=100):
+def em_ndm(subject_data, c_type, c_path, thr, seed_candidates, ref_list, n_subgroups, tol=1e-6, max_iter=100):
     # Initialize parameters
     gammas = np.random.rand(n_subgroups) * 1e-4  # random initial guesses for gamma
     membership_probs = np.random.rand(len(subject_data), n_subgroups)
