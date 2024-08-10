@@ -40,7 +40,7 @@ REF_LIST = pd.read_csv( "../data/TauRegionList.csv")["Raj_label"].tolist()
 
 ####################################
 
-def run_ndm(c_type, c_path, thr, seed_region, ref_list):
+def run_ndm(c_type, c_path, thr, seed_region, ref_list, gamma=5e-5):
     '''
         runs the networks diffusion model
         Parameters:
@@ -67,9 +67,8 @@ def run_ndm(c_type, c_path, thr, seed_region, ref_list):
     x_0[seed_r_ind] = 1
 
     # set parameters for diffusion model
-    gamma = 5e-5  # diffusivity constant
-    d_t = 100
-    t_max = 300000
+    d_t = 100 #これは何をしてるんだろう？必要だったら変更する必要 
+    t_max = 300000 #これも何をしてるんだろう？必要だったら変更しないとね
     time = np.arange(0, t_max, d_t)
 
     #run model
