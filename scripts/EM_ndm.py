@@ -33,7 +33,7 @@ def update_seed_region(subject_data, membership_probs, seed_candidates, c_type, 
     return best_seed
 
 
-def em_ndm_with_seed(subject_data, c_type, c_path, thr, seed_candidates, ref_list, n_subgroups, tol=1e-6, max_iter=100):
+def em_ndm_with(subject_data, c_type, c_path, thr, seed_candidates, ref_list, n_subgroups, tol=1e-6, max_iter=100):
     # Initialize parameters
     gammas = np.random.rand(n_subgroups) * 1e-4  # random initial guesses for gamma
     membership_probs = np.random.rand(len(subject_data), n_subgroups)
@@ -46,13 +46,13 @@ def em_ndm_with_seed(subject_data, c_type, c_path, thr, seed_candidates, ref_lis
 
     while not converged and iter_count < max_iter:
         iter_count += 1
-
+        
         # E-Step: Calculate expected log-likelihood and update membership probabilities
         log_likelihoods = np.zeros((len(subject_data), n_subgroups))
         for i, subject in enumerate(subject_data):
             for k in range(n_subgroups):
                 # Run NDM with current parameters for subgroup k
-                x_t_norm = run_ndm(c_type, c_path, thr, seed_regions[k], ref_list)
+                x_t_norm = run_ndm(c_type, c_path, thr, seed_regions[k], ref_list, gammas[k])
                 log_likelihoods[i, k] = compute_likelihood(subject, x_t_norm)
         
         # Update membership probabilities
